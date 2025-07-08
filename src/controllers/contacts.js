@@ -1,10 +1,18 @@
-import { getPaginatedContacts, getContactById as getContactByIdService, createContact as createContactService, updateContact as updateContactService, deleteContact as deleteContactService } from '../services/contacts.js';
+
+import {
+    getPaginatedContacts,
+    getContactById as getContactByIdService,
+    createContact as createContactService,
+    updateContact as updateContactService,
+    deleteContact as deleteContactService
+} from '../services/contacts.js';
 import createError from 'http-errors';
 
 export const deleteContact = async (req, res, next) => {
     const { contactId } = req.params;
+    const userId = req.user._id;
 
-    const deleted = await deleteContactService(contactId);
+    const deleted = await deleteContactService(contactId, userId);
 
     if (!deleted) {
         throw createError(404, 'Contact not found');
@@ -16,8 +24,9 @@ export const deleteContact = async (req, res, next) => {
 export const updateContact = async (req, res, next) => {
     const { contactId } = req.params;
     const updateData = req.body;
+    const userId = req.user._id;
 
-    const updatedContact = await updateContactService(contactId, updateData);
+    const updatedContact = await updateContactService(contactId, updateData, userId);
 
     if (!updatedContact) {
         throw createError(404, 'Contact not found');
@@ -39,6 +48,7 @@ export const getAllContacts = async (req, res, next) => {
         type,
         isFavourite,
     } = req.query;
+    const userId = req.user._id;
 
     const options = {
         page: parseInt(page),
@@ -47,6 +57,7 @@ export const getAllContacts = async (req, res, next) => {
         sortOrder,
         type,
         isFavourite,
+        userId,
     };
 
     const result = await getPaginatedContacts(options);
@@ -60,7 +71,9 @@ export const getAllContacts = async (req, res, next) => {
 
 export const getContactById = async (req, res, next) => {
     const { contactId } = req.params;
-    const contact = await getContactByIdService(contactId);
+    const userId = req.user._id;
+
+    const contact = await getContactByIdService(contactId, userId);
 
     if (!contact) {
         throw createError(404, 'Contact not found');
@@ -75,13 +88,16 @@ export const getContactById = async (req, res, next) => {
 
 export const createContact = async (req, res, next) => {
     const { name, phoneNumber, email, isFavourite = false, contactType } = req.body;
+    const userId = req.user._id;
 
-    // Видалено: Ручна валідація, оскільки її тепер обробляє Joi та validateBody middleware
-    // if (!name || !phoneNumber || !contactType) {
-    //     throw createError(400, 'Missing required fields: name, phoneNumber, or contactType');
-    // }
-
-    const newContact = await createContactService({ name, phoneNumber, email, isFavourite, contactType });
+    const newContact = await createContactService({
+        name,
+        phoneNumber,
+        email,
+        isFavourite,
+        contactType,
+        userId,
+    });
 
     res.status(201).json({
         status: 201,
