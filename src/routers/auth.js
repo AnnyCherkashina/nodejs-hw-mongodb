@@ -1,15 +1,15 @@
-
-import { Router } from 'express';
-import { ctrlWrapper } from '../utils/ctrlWrapper.js';
-import { registerController, loginController, refreshController, logoutController } from '../controllers/auth.js';
+import express from 'express';
+import * as authController from '../controllers/auth.js';
 import { validateBody } from '../middlewares/validateBody.js';
-import { registerUserSchema, loginUserSchema } from '../validation/authSchemas.js';
+import { registerSchema, loginSchema, sendResetEmailSchema, resetPasswordSchema } from '../schemas/authValidation.js';
 
-const router = Router();
+const router = express.Router();
 
-router.post('/register', validateBody(registerUserSchema), ctrlWrapper(registerController));
-router.post('/login', validateBody(loginUserSchema), ctrlWrapper(loginController));
-router.post('/refresh', ctrlWrapper(refreshController));
-router.post('/logout', ctrlWrapper(logoutController));
+router.post('/register', validateBody(registerSchema), authController.register);
+router.post('/login', validateBody(loginSchema), authController.login);
+router.post('/refresh', authController.refresh);
+router.post('/logout', authController.logout);
+router.post('/send-reset-email', validateBody(sendResetEmailSchema), authController.sendResetEmail);
+router.post('/reset-pwd', validateBody(resetPasswordSchema), authController.resetPassword);
 
 export default router;

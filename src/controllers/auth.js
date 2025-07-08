@@ -1,71 +1,203 @@
+import * as authService from '../services/auth.js';
+import createError from 'http-errors';
+import bcrypt from 'bcrypt';
+import nodemailer from 'nodemailer';
+import jwt from 'jsonwebtoken';
 
-import { registerUser, loginUser, refreshUserSession, logoutUser } from '../services/auth.js';
+const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD,
+    },
+});
 
-export const registerController = async (req, res) => {
-    const user = await registerUser(req.body);
-    res.status(201).json({
-        status: 201,
-        message: 'Successfully registered a user!',
-        data: user,
-    });
+export const register = async (req, res, next) => {
+    try {
+        const { name, email, password } = req.body;
+
+        const existingUser = await authService.findUserByEmail(email);
+        if (existingUser) throw createError(409, 'Email in use');
+
+        const user = await authService.registerUser({ name, email, password });
+
+        res.status(201).json({
+            status: 201,
+            message: 'Successfully registered a user!',
+            data: user,
+        });
+    } catch (error) {
+        next(error);
+    }
 };
 
-export const loginController = async (req, res) => {
-    const { accessToken, refreshToken, accessTokenValidUntil, refreshTokenValidUntil, user } = await loginUser(req.body);
-    console.log('Access Token Valid Until:', accessTokenValidUntil);
+// export const login = async (req, res, next) => {
+//   try {
+//     const { email, password } = req.body;
 
-    res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: true,
-        expires: refreshTokenValidUntil,
-        sameSite: 'None',
-    });
+//     const user = await authService.findUserByEmail(email);
+//     if (!user) throw createError(401, 'Invalid credentials');
 
-    res.status(200).json({
-        status: 200,
-        message: 'Successfully logged in an user!',
-        data: {
-            accessToken,
-            user: {
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-            },
-        },
-    });
+//     const isMatch = await bcrypt.compare(password, user.password);
+//     if (!isMatch) throw createError(401, 'Invalid credentials');
+
+//     const { accessToken, refreshToken } = await authService.login(user);
+
+//     res.cookie('refreshToken', refreshToken, {
+//       httpOnly: true,
+//       sameSite: 'strict',
+//       maxAge: 30 * 24 * 60 * 60 * 1000,
+//     });
+
+//     res.status(200).json({
+//       status: 200,
+//       message: 'Successfully logged in an user!',
+//       data: { accessToken },
+//     });
+//   } catch (error) {
+//     console.error('Login error:', error);
+//     next(error);
+//   }
+// };
+export const login = async (req, res, next) => {
+    try {
+        const { email, password } = req.body;
+
+
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            throw createError(400, 'Invalid email format');
+        }
+
+        const normalizedEmail = email.toLowerCase();
+        console.log('Login attempt:', { email: normalizedEmail, password });
+
+        const user = await authService.findUserByEmail(normalizedEmail);
+        if (!user) throw createError(401, 'Invalid credentials');
+
+        console.log('Stored password hash:', user.password);
+        const isMatch = await bcrypt.compare(password, user.password);
+        console.log('Password match:', isMatch);
+        if (!isMatch) throw createError(401, 'Invalid credentials');
+
+        const { accessToken, refreshToken } = await authService.login(user);
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            sameSite: 'strict',
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+        });
+
+        res.status(200).json({
+            status: 200,
+            message: 'Successfully logged in an user!',
+            data: { accessToken },
+        });
+    } catch (error) {
+        console.error('Login error:', error);
+        next(error);
+    }
 };
 
-export const refreshController = async (req, res) => {
-    const { refreshToken } = req.cookies;
-    const { accessToken, refreshToken: newRefreshToken, accessTokenValidUntil, refreshTokenValidUntil, user } = await refreshUserSession(refreshToken);
+export const refresh = async (req, res, next) => {
+    try {
+        const { refreshToken } = req.cookies;
+        if (!refreshToken) throw createError(401, 'Refresh token missing');
 
+        const session = await authService.findSessionByRefreshToken(refreshToken);
+        if (!session) throw createError(401, 'Invalid refresh token');
 
-    res.cookie('refreshToken', newRefreshToken, {
-        httpOnly: true,
-        secure: true,
-        expires: refreshTokenValidUntil,
-        sameSite: 'None',
-    });
+        const { accessToken, refreshToken: newRefreshToken } = await authService.refreshSession(session);
 
-    res.status(200).json({
-        status: 200,
-        message: 'Successfully refreshed a session!',
-        data: {
-            accessToken,
-            user: {
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-            },
-        },
-    });
+        res.cookie('refreshToken', newRefreshToken, {
+            httpOnly: true,
+            sameSite: 'strict',
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+        });
+
+        res.status(200).json({
+            status: 200,
+            message: 'Successfully refreshed a session!',
+            data: { accessToken },
+        });
+    } catch (error) {
+        console.error('Refresh error:', error);
+        next(error);
+    }
 };
 
-export const logoutController = async (req, res) => {
-    const { refreshToken } = req.cookies;
-    await logoutUser(refreshToken);
+export const logout = async (req, res, next) => {
+    try {
+        const { refreshToken } = req.cookies;
+        if (!refreshToken) throw createError(401, 'Refresh token missing');
 
-    res.clearCookie('refreshToken');
+        await authService.deleteSession(refreshToken);
 
-    res.status(204).send();
+        res.clearCookie('refreshToken');
+        res.status(204).send();
+    } catch (error) {
+        console.error('Logout error:', error);
+        next(error);
+    }
+};
+
+export const sendResetEmail = async (req, res, next) => {
+    try {
+        const { email } = req.body;
+        const user = await authService.findUserByEmail(email);
+        if (!user) throw createError(404, 'User not found!');
+
+        const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '5m' });
+        const resetLink = `${process.env.APP_DOMAIN}/reset-password?token=${token}`;
+
+        const mailOptions = {
+            from: process.env.SMTP_FROM,
+            to: email,
+            subject: 'Password Reset Request',
+            text: `Click the following link to reset your password: ${resetLink}`,
+            html: `<p>Click <a href="${resetLink}">here</a> to reset your password.</p>`,
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        res.status(200).json({
+            status: 200,
+            message: 'Reset password email has been successfully sent.',
+            data: {},
+        });
+    } catch (error) {
+        console.error('Send reset email error:', error);
+        next(createError(500, 'Failed to send the email, please try again later.'));
+    }
+};
+
+export const resetPassword = async (req, res, next) => {
+    try {
+        const { token, password } = req.body;
+
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
+        } catch (error) {
+            throw createError(401, 'Token is expired or invalid.');
+        }
+
+        const user = await authService.findUserByEmail(decoded.email);
+        if (!user) throw createError(404, 'User not found!');
+
+        user.password = await bcrypt.hash(password, 10);
+        await user.save();
+
+
+        await authService.deleteSessionByUserId(user._id);
+
+        res.status(200).json({
+            status: 200,
+            message: 'Password has been successfully reset.',
+            data: {},
+        });
+    } catch (error) {
+        console.error('Reset password error:', error);
+        next(error);
+    }
 };
