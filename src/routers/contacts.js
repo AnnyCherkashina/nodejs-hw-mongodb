@@ -1,42 +1,30 @@
 import express from 'express';
-import { ctrlWrapper } from '../utils/ctrlWrapper.js';
 import {
     getAllContactsController,
     getContactByIdController,
     createContactController,
     updateContactController,
-    deleteContactController,
+    deleteContactController
 } from '../controllers/contacts.js';
+
 import { validateBody } from '../middlewares/validateBody.js';
+import { createContactSchema, updateContactSchema } from '../schemas/contactSchemas.js';
 import { isValidId } from '../middlewares/isValidId.js';
-import { createContactSchema, updateContactSchema } from '../schemas/contactSchemas.js'; // Виправлено: шлях до schemas/contactSchemas.js
-import { authenticate } from '../middlewares/authenticate.js';
-import { upload } from '../middlewares/upload.js';
+import authenticate from '../middlewares/authenticate.js';
+
 
 const router = express.Router();
 
-// Middleware для аутентифікації застосовується до всіх маршрутів контактів
 router.use(authenticate);
 
-router.get('/', ctrlWrapper(getAllContactsController));
+router.get('/', getAllContactsController);
 
-router.get('/:contactId', isValidId, ctrlWrapper(getContactByIdController));
+router.get('/:contactId', isValidId, getContactByIdController);
 
-router.post(
-    '/',
-    upload.single('photo'), // Middleware для завантаження одного файлу з полем 'photo'
-    validateBody(createContactSchema),
-    ctrlWrapper(createContactController)
-);
+router.post('/', validateBody(createContactSchema), createContactController);
 
-router.patch(
-    '/:contactId',
-    isValidId,
-    upload.single('photo'), // Middleware для завантаження одного файлу з полем 'photo'
-    validateBody(updateContactSchema),
-    ctrlWrapper(updateContactController)
-);
+router.patch('/:contactId', isValidId, validateBody(updateContactSchema), updateContactController);
 
-router.delete('/:contactId', isValidId, ctrlWrapper(deleteContactController));
+router.delete('/:contactId', isValidId, deleteContactController);
 
 export default router;
