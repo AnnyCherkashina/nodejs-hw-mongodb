@@ -145,10 +145,7 @@ export const sendResetEmail = async (req, res, next) => {
         });
     } catch (error) {
         console.error('Send reset email error:', error);
-        // Тут ми вже знаємо, що помилка була ReferenceError, а не проблема з надсиланням листа
-        // Тому краще логувати її детальніше або передавати далі
-        // Якщо це дійсно помилка SMTP, то 500 з повідомленням "Failed to send the email..." підійде.
-        // Але зараз виправлення ReferenceError є пріоритетом.
+
         next(createError(500, 'Failed to send the email, please try again later.'));
     }
 };
