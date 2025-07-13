@@ -16,9 +16,8 @@ app.use(pino());
 app.use(express.json());
 app.use(cookieParser());
 
-app.use('/contacts', contactsRouter);
-app.use('/auth', authRouter);
-
+app.use('/api/contacts', contactsRouter);
+app.use('/api/auth', authRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
