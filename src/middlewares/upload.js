@@ -1,17 +1,21 @@
-export const validateBody = (schema) => {
-    return (req, res, next) => {
-        console.log("Validating body:", req.body);
-        const { error } = schema.validate(req.body);
-        if (error) {
-            console.log("Validation error:", error.message);
-            return res.status(400).json({
-                status: 400,
-                message: error.message,
-                data: error.message,
-            });
-        }
-        next();
-    };
-};
+import multer from 'multer';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import { v2 as cloudinary } from 'cloudinary';
 
-export default validateBody;
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'contacts_photos',
+        allowed_formats: ['jpg', 'png'],
+    },
+});
+
+const upload = multer({ storage });
+
+export default upload;

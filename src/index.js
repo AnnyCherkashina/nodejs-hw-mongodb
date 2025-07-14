@@ -1,5 +1,4 @@
 
-
 import 'dotenv/config';
 import app from './server.js';
 import { initMongoConnection } from './db/initMongoConnection.js';

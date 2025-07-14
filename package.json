@@ -18,7 +18,7 @@
   "license": "ISC",
   "devDependencies": {
     "@eslint/js": "^9.2.0",
-    "eslint": "^9.30.1",
+    "eslint": "^9.31.0",
     "globals": "^15.1.0",
     "nodemon": "^3.1.10"
   },
@@ -37,6 +37,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.1",
     "multer": "^2.0.1",
+    "multer-storage-cloudinary": "^4.0.0",
     "nodemailer": "^7.0.5",
     "path-to-regexp": "^6.2.1",
     "pino": "^9.7.0",
