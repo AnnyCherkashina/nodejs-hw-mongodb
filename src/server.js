@@ -16,6 +16,13 @@ app.use(pino());
 app.use(express.json());
 app.use(cookieParser());
 
+
+// 
+app.get('/', (req, res) => {
+    res.status(200).json({ message: 'Welcome to the API! Service is running.' });
+});
+// --------------------------------
+
 app.use('/contacts', contactsRouter);
 app.use('/auth', authRouter);
 
