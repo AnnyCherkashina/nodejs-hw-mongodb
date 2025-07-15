@@ -1,0 +1,39 @@
+# nodejs-hw-mongodb/swagger/paths/auth/send-reset-email.yaml
+post:
+  tags:
+    - Auth
+  summary: Send password reset email
+  operationId: sendResetEmail
+  description: Sends a password reset email to the provided email address.
+  security: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../../../docs/openapi.yaml#/components/schemas/SendResetEmailRequest'
+  responses:
+    '200':
+      $ref: '../../../docs/openapi.yaml#/components/responses/ResetEmailSentResponse'
+    '400':
+      $ref: '../../../docs/openapi.yaml#/components/responses/BadRequestResponse'
+    '404':
+      description: User not found
+      content:
+        application/json:
+          schema:
+            $ref: '../../../docs/openapi.yaml#/components/schemas/Error'
+            example:
+              status: 404
+              message: 'Not Found'
+              data: 'User not found!'
+    '500':
+      description: Failed to send email
+      content:
+        application/json:
+          schema:
+            $ref: '../../../docs/openapi.yaml#/components/schemas/Error'
+            example:
+              status: 500
+              message: 'Internal Server Error'
+              data: 'Failed to send the email, please try again later.'

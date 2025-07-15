@@ -1,0 +1,22 @@
+# nodejs-hw-mongodb/swagger/paths/auth/register.yaml
+post:
+  tags:
+    - Auth
+  summary: Register a new user
+  operationId: registerUser
+  security: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../../../docs/openapi.yaml#/components/schemas/UserRegister'
+  responses:
+    '201':
+      $ref: '../../../docs/openapi.yaml#/components/responses/SuccessfullyRegisteredResponse'
+    '400':
+      $ref: '../../../docs/openapi.yaml#/components/responses/BadRequestResponse'
+    '409':
+      $ref: '../../../docs/openapi.yaml#/components/responses/ConflictResponse'
+    '500':
+      $ref: '../../../docs/openapi.yaml#/components/responses/InternalServerErrorResponse'

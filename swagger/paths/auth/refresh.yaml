@@ -1,0 +1,16 @@
+# nodejs-hw-mongodb/swagger/paths/auth/refresh.yaml
+post:
+  tags:
+    - Auth
+  summary: Refresh access token
+  operationId: refreshAccessToken
+  security:
+    - bearerAuth: []
+  description: Requires a valid refresh token in the cookies to issue a new access token.
+  responses:
+    '200':
+      $ref: '../../../docs/openapi.yaml#/components/responses/RefreshSuccessResponse' # Шлях виправлено
+    '401':
+      $ref: '../../../docs/openapi.yaml#/components/responses/UnauthorizedResponse' # Шлях виправлено
+    '500':
+      $ref: '../../../docs/openapi.yaml#/components/responses/InternalServerErrorResponse' # Шлях виправлено

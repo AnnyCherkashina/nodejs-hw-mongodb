@@ -32,38 +32,9 @@ export const register = async (req, res, next) => {
     }
 };
 
-// export const login = async (req, res, next) => {
-//   try {
-//     const { email, password } = req.body;
-
-//     const user = await authService.findUserByEmail(email);
-//     if (!user) throw createError(401, 'Invalid credentials');
-
-//     const isMatch = await bcrypt.compare(password, user.password);
-//     if (!isMatch) throw createError(401, 'Invalid credentials');
-
-//     const { accessToken, refreshToken } = await authService.login(user);
-
-//     res.cookie('refreshToken', refreshToken, {
-//       httpOnly: true,
-//       sameSite: 'strict',
-//       maxAge: 30 * 24 * 60 * 60 * 1000,
-//     });
-
-//     res.status(200).json({
-//       status: 200,
-//       message: 'Successfully logged in an user!',
-//       data: { accessToken },
-//     });
-//   } catch (error) {
-//     console.error('Login error:', error);
-//     next(error);
-//   }
-// };
 export const login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
-
 
         if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             throw createError(400, 'Invalid email format');
@@ -187,7 +158,6 @@ export const resetPassword = async (req, res, next) => {
 
         user.password = await bcrypt.hash(password, 10);
         await user.save();
-
 
         await authService.deleteSessionByUserId(user._id);
 

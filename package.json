@@ -5,13 +5,11 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "get-all": "node src/scripts/getAllContacts.js",
-    "generate": "node src/scripts/generateContacts.js",
-    "add-one": "node src/scripts/addOneContact.js",
-    "count": "node src/scripts/countContacts.js",
-    "remove-last": "node src/scripts/removeLastContact.js",
-    "remove-all": "node src/scripts/removeAllContacts.js",
-    "dev": "nodemon src/index.js"
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "build": "npm run build-docs",
+    "build-docs": "redocly bundle docs/openapi.yaml --ext json -o docs/swagger.json",
+    "preview-docs": "redocly preview-docs"
   },
   "keywords": [],
   "author": "",

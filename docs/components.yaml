@@ -1,0 +1,87 @@
+# docs/components.yaml
+securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+schemas:
+  Contact:
+    type: object
+    properties:
+      _id:
+        type: string
+        format: uuid
+        description: Unique identifier of the contact
+      name:
+        type: string
+        description: Name of the contact
+      phoneNumber:
+        type: string
+        description: Phone number of the contact
+      email:
+        type: string
+        format: email
+        description: Email of the contact
+      contactType:
+        type: string
+        enum: [personal, work, home]
+        description: Type of contact
+      isFavourite:
+        type: boolean
+        description: Whether the contact is a favourite
+      photo:
+        type: string
+        description: URL to the contact's photo
+      userId:
+        type: string
+        format: uuid
+        description: User ID who owns the contact
+      createdAt:
+        type: string
+        format: date-time
+        description: The creation date of the contact
+      updatedAt:
+        type: string
+        format: date-time
+        description: The last update date of the contact
+    required:
+      - name
+      - phoneNumber
+      - contactType
+  Error:
+    type: object
+    properties:
+      status:
+        type: integer
+        format: int32
+        example: 400
+      message:
+        type: string
+        example: Bad Request
+      data:
+        type: string
+        example: Some error details
+  User:
+    type: object
+    properties:
+      _id:
+        type: string
+        format: uuid
+        description: Unique identifier of the user
+      email:
+        type: string
+        format: email
+        description: User's email address
+      name:
+        type: string
+        description: User's name
+      createdAt:
+        type: string
+        format: date-time
+        description: The creation date of the user
+      updatedAt:
+        type: string
+        format: date-time
+        description: The last update date of the user
+    required:
+      - email
+      - name

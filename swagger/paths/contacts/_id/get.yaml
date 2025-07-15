@@ -1,0 +1,42 @@
+# docs/paths/contacts/{contactId}/get.yaml
+
+# nodejs-hw-mongodb/swagger/paths/contacts/_id/get.yaml
+get:
+  tags:
+    - Contacts
+  summary: Get a single contact by ID
+  operationId: getContactById
+  security:
+    - bearerAuth: []
+  parameters:
+    - in: path
+      name: contactId
+      schema:
+        type: string
+      required: true
+      description: ID of the contact to retrieve
+      example: 60d5ec49f8a3c9001c9b4d8a
+  responses:
+    '200':
+      description: Contact retrieved successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: number
+                example: 200
+              message:
+                type: string
+                example: 'Successfully found contact by id!'
+              data:
+                $ref: '../../../../docs/openapi.yaml#/components/schemas/Contact' # Шлях виправлено
+    '401':
+      $ref: '../../../../docs/openapi.yaml#/components/responses/UnauthorizedResponse' # Шлях виправлено
+    '404':
+      $ref: '../../../../docs/openapi.yaml#/components/responses/ContactNotFoundResponse' # Шлях виправлено
+    '400':
+      $ref: '../../../../docs/openapi.yaml#/components/responses/BadRequestResponse' # Шлях виправлено
+    '500':
+      $ref: '../../../../docs/openapi.yaml#/components/responses/InternalServerErrorResponse' # Шлях виправлено

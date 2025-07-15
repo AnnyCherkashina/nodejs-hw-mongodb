@@ -1,0 +1,66 @@
+patch:
+  tags:
+    - Contacts
+  summary: Update a contact by ID
+  operationId: updateContact
+  security:
+    - bearerAuth: []
+  parameters:
+    - in: path
+      name: contactId
+      schema:
+        type: string
+      required: true
+      description: ID of the contact to update
+      example: 60d5ec49f8a3c9001c9b4d8a
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+              minLength: 3
+              maxLength: 20
+              example: Jane Doe
+            phoneNumber:
+              type: string
+              minLength: 5
+              maxLength: 20
+              example: '+380671234567'
+            email:
+              type: string
+              format: email
+              example: jane.doe@example.com
+            contactType:
+              type: string
+              enum: [personal, work, home]
+              example: work
+            isFavourite:
+              type: boolean
+              example: false
+          minProperties: 1
+          description: Fields to update for the contact. At least one field must be provided.
+        examples:
+          updateName:
+            value:
+              name: Jane Doe
+          updatePhone:
+            value:
+              phoneNumber: '+380501112233'
+          updateFavorite:
+            value:
+              isFavourite: true
+  responses:
+    '200':
+      $ref: '../../../../docs/openapi.yaml#/components/responses/SuccessContactResponse' # Шлях виправлено
+    '401':
+      $ref: '../../../../docs/openapi.yaml#/components/responses/UnauthorizedResponse' # Шлях виправлено
+    '404':
+      $ref: '../../../../docs/openapi.yaml#/components/responses/ContactNotFoundResponse' # Шлях виправлено
+    '400':
+      $ref: '../../../../docs/openapi.yaml#/components/responses/BadRequestResponse' # Шлях виправлено
+    '500':
+      $ref: '../../../../docs/openapi.yaml#/components/responses/InternalServerErrorResponse' # Шлях виправлено

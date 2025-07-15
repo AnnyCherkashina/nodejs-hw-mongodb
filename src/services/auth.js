@@ -13,15 +13,6 @@ export const findUserByEmail = async (email) => {
     return User.findOne({ email });
 };
 
-// export const registerUser = async ({ name, email, password }) => {
-//   console.log('Registering user:', { name, email });
-//   const hashedPassword = await bcrypt.hash(password, 10);
-//   const user = await User.create({ name, email, password: hashedPassword });
-//   const userObj = user.toObject();
-//   delete userObj.password;
-//   return userObj;
-// };
-// services/auth.js
 export const registerUser = async ({ name, email, password }) => {
     console.log('Registering user:', { name, email, password });
     const user = await User.create({ name, email: email.toLowerCase(), password });

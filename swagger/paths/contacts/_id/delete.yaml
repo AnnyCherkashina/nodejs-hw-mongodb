@@ -1,0 +1,41 @@
+delete:
+  tags:
+    - Contacts
+  summary: Delete a contact by ID
+  operationId: deleteContact
+  security:
+    - bearerAuth: []
+  parameters:
+    - in: path
+      name: contactId
+      schema:
+        type: string
+      required: true
+      description: ID of the contact to delete
+      example: 60d5ec49f8a3c9001c9b4d8a
+  responses:
+    '204':
+      description: No content, contact successfully deleted
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: number
+                example: 204
+              message:
+                type: string
+                example: 'Contact deleted successfully'
+              data:
+                type: object
+                nullable: true
+                example: null
+    '401':
+      $ref: '../../../../docs/openapi.yaml#/components/responses/UnauthorizedResponse' # Шлях виправлено
+    '404':
+      $ref: '../../../../docs/openapi.yaml#/components/responses/ContactNotFoundResponse' # Шлях виправлено
+    '400':
+      $ref: '../../../../docs/openapi.yaml#/components/responses/BadRequestResponse' # Шлях виправлено
+    '500':
+      $ref: '../../../../docs/openapi.yaml#/components/responses/InternalServerErrorResponse' # Шлях виправлено

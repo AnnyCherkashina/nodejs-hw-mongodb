@@ -1,0 +1,404 @@
+# nodejs-hw-mongodb/docs/openapi.yaml
+
+openapi: 3.0.0
+info:
+  title: Your Project API
+  description: API documentation for your Node.js project.
+  version: 1.0.0
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+  - url: https://nodejs-hw-mongodb-wjqd.onrender.com
+    description: Production server on Render.com
+tags:
+  - name: Auth
+    description: User authentication and authorization operations
+  - name: Contacts
+    description: Contact management operations
+paths:
+  /contacts/{contactId}:
+    $ref: '../swagger/paths/contacts/_id/get.yaml'
+  /contacts:
+    $ref: '../swagger/paths/contacts/get.yaml'
+    post:
+      $ref: '../swagger/paths/contacts/post.yaml'
+  /contacts/{contactId}/patch:
+    $ref: '../swagger/paths/contacts/_id/patch.yaml'
+  /contacts/{contactId}/delete:
+    $ref: '../swagger/paths/contacts/_id/delete.yaml'
+  /auth/register:
+    $ref: '../swagger/paths/auth/register.yaml'
+  /auth/login:
+    $ref: '../swagger/paths/auth/login.yaml'
+  /auth/refresh:
+    $ref: '../swagger/paths/auth/refresh.yaml'
+  /auth/logout:
+    $ref: '../swagger/paths/auth/logout.yaml'
+  /auth/send-reset-email:
+    $ref: '../swagger/paths/auth/send-reset-email.yaml'
+  /auth/reset-pwd:
+    $ref: '../swagger/paths/auth/reset-pwd.yaml'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Contact:
+      type: object
+      required:
+        - name
+        - phoneNumber
+        - contactType
+      properties:
+        _id:
+          type: string
+          description: Auto-generated unique ID of the contact.
+          example: 60d5ec49f8a3c9001c9b4d8a
+        name:
+          type: string
+          minLength: 3
+          maxLength: 20
+          example: John Doe
+        phoneNumber:
+          type: string
+          minLength: 5
+          maxLength: 20
+          example: '+380671234567'
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+        contactType:
+          type: string
+          enum: [personal, work, home]
+          example: personal
+        isFavourite:
+          type: boolean
+          example: true
+        photo:
+          type: string
+          format: uri
+          description: URL to the contact's photo.
+          example: https://example.com/photos/john_doe.jpg
+        owner:
+          type: string
+          description: The ID of the user who owns this contact.
+          example: 60d5ec49f8a3c9001c9b4d8c
+
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Auto-generated unique ID of the user.
+          example: 60d5ec49f8a3c9001c9b4d8b
+        name:
+          type: string
+          example: Alice Smith
+        email:
+          type: string
+          format: email
+          example: alice.smith@example.com
+        photo:
+          type: string
+          format: uri
+          description: URL to the user's avatar.
+          example: https://example.com/avatars/alice.jpg
+        refreshToken:
+          type: string
+          description: Current refresh token for the user.
+          nullable: true
+          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2023-10-26T10:00:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2023-10-26T10:00:00Z'
+
+    UserRegister:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+          example: Alice Smith
+        email:
+          type: string
+          format: email
+          example: alice.smith@example.com
+        password:
+          type: string
+          format: password
+          example: 'strongpassword123'
+
+    UserLogin:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: alice.smith@example.com
+        password:
+          type: string
+          format: password
+          example: 'strongpassword123'
+
+    SendResetEmailRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+
+    ResetPasswordRequest:
+      type: object
+      required:
+        - password
+        - token
+      properties:
+        password:
+          type: string
+          format: password
+          example: 'newStrongPassword123'
+        token:
+          type: string
+          description: Password reset token received via email.
+          example: 'somerandomtokenstring'
+
+    Error:
+      type: object
+      properties:
+        status:
+          type: number
+          example: 400
+        message:
+          type: string
+          example: 'Bad Request'
+        data:
+          type: string
+          nullable: true
+          example: null
+
+  responses:
+    SuccessContactResponse:
+      description: Contact retrieved successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: number
+                example: 200
+              message:
+                type: string
+                example: 'Successfully found contact by id!'
+              data:
+                $ref: '#/components/schemas/Contact'
+
+    SuccessContactsListResponse:
+      description: A list of contacts.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: number
+                example: 200
+              message:
+                type: string
+                example: 'Successfully found contacts'
+              data:
+                type: object
+                properties:
+                  contacts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Contact'
+                  page:
+                    type: integer
+                    example: 1
+                  perPage:
+                    type: integer
+                    example: 10
+                  totalItems:
+                    type: integer
+                    example: 25
+                  totalPages:
+                    type: integer
+                    example: 3
+
+    UnauthorizedResponse:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+            example:
+              status: 401
+              message: 'Unauthorized'
+              data: 'Not authorized'
+
+    ContactNotFoundResponse:
+      description: Contact not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+            example:
+              status: 404
+              message: 'Not found'
+              data: 'Contact not found'
+
+    BadRequestResponse:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+            example:
+              status: 400
+              message: 'Bad Request'
+              data: 'Validation error'
+
+    InternalServerErrorResponse:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+            example:
+              status: 500
+              message: 'Internal Server Error'
+              data: null
+
+    SuccessfullyRegisteredResponse:
+      description: User registered successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: number
+                example: 201
+              message:
+                type: string
+                example: 'User created successfully!'
+              data:
+                $ref: '#/components/schemas/User'
+
+    ConflictResponse:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+            example:
+              status: 409
+              message: 'Conflict'
+              data: 'Email is already in use'
+
+    LoginSuccessResponse:
+      description: User logged in successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: number
+                example: 200
+              message:
+                type: string
+                example: 'Login successful!'
+              data:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+                  user:
+                    $ref: '#/components/schemas/User'
+
+    RefreshSuccessResponse:
+      description: Token refreshed successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: number
+                example: 200
+              message:
+                type: string
+                example: 'Refresh token successful!'
+              data:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+                  user:
+                    $ref: '#/components/schemas/User'
+
+    LogoutSuccessResponse:
+      description: User logged out successfully (No Content)
+      content: {}
+
+    ResetEmailSentResponse:
+      description: Password reset email sent
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: number
+                example: 200
+              message:
+                type: string
+                example: 'Password reset email sent successfully. Please check your inbox.'
+              data:
+                type: object
+                nullable: true
+                example: null
+
+    PasswordResetSuccessResponse:
+      description: Password reset successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: number
+                example: 200
+              message:
+                type: string
+                example: 'Password successfully reset!'
+              data:
+                type: object
+                nullable: true
+                example: null

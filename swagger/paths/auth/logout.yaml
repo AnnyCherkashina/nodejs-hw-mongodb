@@ -1,0 +1,16 @@
+# nodejs-hw-mongodb/swagger/paths/auth/logout.yaml
+post:
+  tags:
+    - Auth
+  summary: User logout
+  operationId: logoutUser
+  security:
+    - bearerAuth: []
+  description: Invalidates the current refresh token, effectively logging the user out.
+  responses:
+    '204':
+      $ref: '../../../docs/openapi.yaml#/components/responses/LogoutSuccessResponse' # Шлях виправлено
+    '401':
+      $ref: '../../../docs/openapi.yaml#/components/responses/UnauthorizedResponse' # Шлях виправлено
+    '500':
+      $ref: '../../../docs/openapi.yaml#/components/responses/InternalServerErrorResponse' # Шлях виправлено
