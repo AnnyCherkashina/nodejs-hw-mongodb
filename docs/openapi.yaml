@@ -11,7 +11,7 @@ info:
 servers:
   - url: http://localhost:3000
     description: Local development server
-  - url: https://nodejs-hw-mongodb-wjqd.onrender.com
+  - url: https://nodejs-hw-mongodb-0k6x.onrender.com
     description: Production server on Render.com
 tags:
   - name: Auth
